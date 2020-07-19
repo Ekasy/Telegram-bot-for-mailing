@@ -1,0 +1,7 @@
+{
+    "database": {
+        "name": "botdbase.db",
+        "path": ""
+    },
+    "proxy": "socks5h://geek:socks@t.geekclass.ru:7777"
+}

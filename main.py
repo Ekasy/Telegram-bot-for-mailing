@@ -24,7 +24,6 @@ def join_list(l):
 
 
 def sending(phones, message, bot_token):
-    # bot_token = dbase.get_token(name=name)
     proxy_s = get_proxy()
     bot = bot_helper.Bot(bot_token, proxy_s)
     for phone in phones:
@@ -44,7 +43,6 @@ def sending_all(bot_token, chats_id, message):
 def process(name):
     path = split_string(os.path.abspath(sys.argv[0]))[0:-1]
     path.append('mybot.exe')
-    # path.append('mybot.py')
     bd_path = join_list(split_string(get_path_to_db()))
     proxy_s = get_proxy()
     if bd_path == 'error' or proxy_s == 'error':
@@ -81,10 +79,8 @@ def process(name):
         nname  = 'mybot'
         pid = []
         for i in ls:
-            #print(i.split(' '))
             if i.split(' ')[3] == nname:
                 pid.append(i.split(' ')[0])
-        #dbase.update_pid(pid=str(pid+1), name=name)
         pids = dbase.get_all_pid().split(',')
         for p in pids:
             if p in pid:
@@ -159,18 +155,6 @@ def start_bot(params):
         return 'error'
     return process(params[1])
 
-'''
-def stop_bot(name):
-    if dbase.is_active(name=name) == 0:
-        return 'ok'
-    pid = dbase.get_pid(name=name)
-    for p in pid.split(','):
-        subprocess.Popen('taskkill /pid ' + p + ' /f', stdout=subprocess.PIPE, shell=True)
-    dbase.update_pid(pid='', name=name)
-    dbase.update_active(name=name, active=0)
-    return 'ok'
-'''
-
 
 def stop_bot(name):
     if platform.system() == 'Linux':
@@ -196,11 +180,9 @@ def stop_bot(name):
         if '"mybot.exe"' in i:
             spisok = i[1:len(i) - 2].split('","')
             pid.append(str(spisok[1]))
-    # print(pid)
     pids = dbase.get_pid(name=name)
     for p in pids.split(','):
         if p in pid:
-            # print('попал в ' + str(p))
             subprocess.Popen('taskkill /pid ' + p + ' /f', stdout=subprocess.PIPE, shell=True)
     dbase.update_pid(pid='', name=name)
     dbase.update_active(name=name, active=0)
@@ -209,8 +191,7 @@ def stop_bot(name):
 
 def get_path_to_db():
     path = split_string(os.path.abspath(sys.argv[0]))
-    # path = os.path.abspath(sys.argv[0]).split('/')
-    path = path[0:len(path) - 1]  # нужно будет -2 для exe
+    path = path[0:len(path) - 1]
     path.append('db')
     path.append('settings.json')
 
@@ -221,8 +202,7 @@ def get_path_to_db():
 
 def get_proxy():
     path = split_string(os.path.abspath(sys.argv[0]))
-    # path = os.path.abspath(sys.argv[0]).split('/')
-    path = path[0:len(path) - 1]  # нужно будет -2 для exe
+    path = path[0:len(path) - 1]
     path.append('db')
     path.append('settings.json')
 
@@ -247,21 +227,16 @@ def open_json(path):
 
 
 if __name__ == "__main__":
-    # dbase.drop()
     dbase.db_name = join_list(split_string(get_path_to_db()))
-    # print(dbase.db_name)
     dbase.init_db()
 
     if len(sys.argv) == 1:
         print('Вы ввели недостаточно параметров')
-        # exit()
 
     # запуск бота
     if sys.argv[1] == 'start':
         path_to_db = join_list(split_string(get_path_to_db()))
         proxy_s = get_proxy()
-        # print(proxy_s)
-        # print(path_to_db)
         if path_to_db != 'error' and proxy_s != 'error':
             # argv содержит строку вида: main.exe start token file.json
             if len(sys.argv) == 4:
@@ -320,9 +295,6 @@ if __name__ == "__main__":
         k = split_string(path_to_db)[0:-1]
         k.append('{name}_backup.db'.format(name=split_string(path_to_db)[-1][0:len(split_string(path_to_db)[-1]) - 3]))
         path_to_backup = join_list(k)
-        # path_to_backup = "/".join(path_to_db.split("/")[0:-1]) + '/{name}_backup.db'\
-            # .format(name=path_to_db.split("/")[-1][0:len(path_to_db.split("/")[-1]) - 3])
-        # print(path_to_db + ' - ' + path_to_backup)
         if len(sys.argv) == 3:
             path_to_backup = sys.argv[2]
         dbase.make_backup(path_to_db, path_to_backup)
@@ -365,12 +337,6 @@ if __name__ == "__main__":
         else:
             phones = sys.argv[2:len(sys.argv) - 1]
             message = sys.argv[len(sys.argv) - 1]
-
-            # print('Name - ' + sys.argv[0])
-            # print(phones)
-            # print(message)
-            # print(token)  # 1143632014:AAFhp3pxu5jjnWfot1VfMKAXeWRnCHhQ9mU  BMSTUnewsletter
-            # 1108969459:AAHTkVHLZ8oYtHwaFWcS0bZ74yzipLALNl4  ФН11-42Б
 
             sending(phones, message, token)
             print('Сообщение отправлено')
