@@ -13,14 +13,6 @@ def safety_connection(func):
             res = func(*args, conn=conn, **kwargs)
         return res
 
-    '''
-    def inner(*args, **kwargs):
-        with psycopg2.connect(dbname='botdbase', user='postgres',
-                            password='12postgre05', host='192.168.1.5') as conn:
-            res = func(*args, conn=conn, **kwargs)
-        return res
-    '''
-
     return inner
 
 
@@ -46,10 +38,6 @@ def insert_id_into_table(conn, token, chat_id):
     if not count:
         cursor.execute("insert into users (token, user_id, chat_id, state) values ('{token}', '{user_id}', "
                        "'{chat_id}', '{state}')".format(token=token, user_id=chat_id, chat_id=chat_id, state=0))
-        '''
-        cursor.execute("insert into users (chat_id, phone_number, state) values ('{chat_id}', "
-                       "'{phone_number}', '{state}')".format(chat_id=user_id, phone_number='', state=0))
-                       '''
     conn.commit()
     cursor.close()
 
@@ -138,7 +126,6 @@ def unsubscribe(conn, token, chat_id):
 
 @safety_connection
 def get_info(conn):
-    # with sqlite3.connect("dbase.db") as conn:
     cursor = conn.cursor()
     cursor.execute("select * from users")
     rows = cursor.fetchall()
