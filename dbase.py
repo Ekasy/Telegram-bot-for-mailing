@@ -10,23 +10,12 @@ def safety_connection(func):
         with sqlite3.connect(db_name, check_same_thread=False) as conn:
             res = func(*args, conn=conn, **kwargs)
         return res
-    '''
-    def inner(*args, **kwargs):
-        with psycopg2.connect(dbname='botdbase', user='postgres',
-                            password='12postgre05', host='192.168.1.5') as conn:
-            res = func(*args, conn=conn, **kwargs)
-        return res
-    '''
 
     return inner
 
 
 @safety_connection
 def init_db(conn):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
-    # conn = psycopg2.connect(dbname='botdbase', user='postgres',
-                            # password='12postgre05', host='192.168.1.5')
-
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS users('
                    'token text NOT NULL, '
@@ -51,7 +40,6 @@ def init_db(conn):
 
 @safety_connection
 def get_chat_id_by_user_id(conn, token, user_id: str):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select chat_id from users where token='{token}' and user_id='{user_id}'".
                    format(token=token, user_id=user_id))
@@ -67,7 +55,6 @@ def get_chat_id_by_user_id(conn, token, user_id: str):
 
 @safety_connection
 def start_bot_dbase(conn, params):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select token from bots where token='{token}'".format(token=params[1]))
     if len(cursor.fetchall()) != 0: # значит бот уже есть в таблице, его нужно запустить
@@ -85,7 +72,6 @@ def start_bot_dbase(conn, params):
 
 @safety_connection
 def get_pid(conn, name):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select pid from bots where name='{name}'".format(name=name))
     (res,) = cursor.fetchall()
@@ -95,23 +81,19 @@ def get_pid(conn, name):
 
 @safety_connection
 def get_all_pid(conn):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select pid from bots")
     rows = cursor.fetchall()
-    # print(rows)
     info = ''
     for row in rows:
         info += str(row[0]) + ','
     conn.commit()
     cursor.close()
-    # print(info)
-    return info[0:len(info) - 1]        # ВАЖНО ПРОТЕСТИТЬ
+    return info[0:len(info) - 1]
 
 
 @safety_connection
 def update_pid(conn, pid, name):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("update bots set pid = '{pid}' where name = '{name}'".format(pid=pid, name=name))
     conn.commit()
@@ -120,7 +102,6 @@ def update_pid(conn, pid, name):
 
 @safety_connection
 def is_active(conn, name):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select active from bots where name='{name}'".format(name=name))
     if len(cursor.fetchall()) == 0:
@@ -128,7 +109,6 @@ def is_active(conn, name):
     conn.commit()
     cursor.execute("select active from bots where name='{name}'".format(name=name))
     (res,) = cursor.fetchall()
-    # print('active = ' + str(res[0]))
     conn.commit()
     cursor.close()
     return int(res[0])
@@ -136,7 +116,6 @@ def is_active(conn, name):
 
 @safety_connection
 def update_active(conn, name, active):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("update bots set active = {active} where name = '{name}'".format(active=active, name=name))
     conn.commit()
@@ -145,25 +124,20 @@ def update_active(conn, name, active):
 
 @safety_connection
 def get_token(conn, name):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
-    # print(name)
     cursor.execute("select token from bots where name='{name}'".format(name=name))
     if len(cursor.fetchall()) == 0:
         return None
     conn.commit()
-    # print(name)
     cursor.execute("select token from bots where name='{name}'".format(name=name))
     (res,) = cursor.fetchall()
     conn.commit()
     cursor.close()
-    # print(res)
     return res[0]
 
 
 @safety_connection
 def get_column(conn, name, column):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select {column} from bots where name='{name}'".format(column=column, name=name))
     if len(cursor.fetchall()) == 0:
@@ -178,7 +152,6 @@ def get_column(conn, name, column):
 
 @safety_connection
 def update_column(conn, name, column, content):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("update bots set {column} = '{content}' where name='{name}'".format(column=column,
                                                                                        content=content, name=name))
@@ -188,7 +161,6 @@ def update_column(conn, name, column, content):
 
 @safety_connection
 def get_all_table(conn):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("select * from bots")
     rows = cursor.fetchall()
@@ -203,7 +175,6 @@ def get_all_table(conn):
 
 @safety_connection
 def drop(conn):
-    # conn = sqlite3.connect(db_name, check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("drop table bots")
     conn.commit()
@@ -234,9 +205,7 @@ def progress(status, remaining, total):
 
 def make_backup(path_to_db, path_to_backup):
     try:
-        # existing DB
         sqlite_con = sqlite3.connect(path_to_db)
-        # copy into this DB
         if not os.path.exists(path_to_backup):
             open(path_to_backup, 'w').close()
         backup_con = sqlite3.connect(path_to_backup)
